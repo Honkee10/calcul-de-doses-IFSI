@@ -23,7 +23,16 @@ nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}nav button{flex:1;bac
 .pl{animation:pl 1s 2}@keyframes pl{50%{box-shadow:0 0 0 6px var(--am)}}@media(prefers-reduced-motion:reduce){.pl{animation:none}}
 .nv{display:flex;justify-content:space-between;margin-top:12px}.end{text-align:center;padding:24px}
 @media(max-width:520px){.mt{gap:8px}}
-</style></head><body><div class="w"><h1>💉 Calcul de doses · Soins infirmiers</h1><nav id="nav"></nav><main id="pg"></main></div>
+
+.intro{background:none;border:0;padding:0}
+.bx{display:flex;gap:12px;align-items:flex-start;border-radius:10px;padding:12px 14px;margin:10px 0;font-size:.95rem;border:1px solid var(--b);background:var(--c)}.bx p{margin:.2em 0}.bx ul{margin:.3em 0;padding-left:1.2em}.bx>div{flex:1}
+.ic{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font:700 1rem system-ui,sans-serif;background:var(--p);color:var(--bg)}
+.bx.al{border-left:6px solid var(--am);background:var(--alb)}.bx.al .ic{background:var(--am);color:#2a2000}
+.bx.tip{border-left:6px solid var(--p);background:var(--pl)}.bx.tip .ic{background:none;font-size:1.4rem}.bx.info{border-left:6px solid var(--b)}
+.cs{border-left:6px solid var(--p);background:var(--pl);border-radius:8px;padding:8px 14px;margin-bottom:14px;font:.9rem/1.5 system-ui,sans-serif}.cs ol{margin:.3em 0 0;padding-left:1.3em}
+h2{font:700 1.35rem system-ui,sans-serif;color:var(--p);margin:.2em 0 .6em}h4{font:700 1.05rem system-ui,sans-serif;margin:1em 0 .3em}
+:root{--alb:#fff4dc}@media(prefers-color-scheme:dark){:root{--alb:#3a2f12}}
+</style></head><body><div class="w"><h1>💉 Calcul de doses · Soins infirmiers</h1><nav id="nav"></nav><div class="top" id="gl" style="margin-bottom:10px"></div><main id="pg"></main></div>
 <script>
 const F=n=>(+(+n).toFixed(2)).toLocaleString('fr-FR'),sh=a=>[...a].sort(()=>Math.random()-.5);
 const Q=(q,o,e,h,w)=>({t:'q',q,o,e,h,w}),M=(q,p,h,w,e)=>({t:'m',q,p,h,w,e});
@@ -65,36 +74,67 @@ S(`<b>Isuprel</b> IV : seringue de 50 mL au PSE, à passer en 8 h. Quel est le d
 S(`<b>Nicardipine</b> IV : seringue de 50 mL au PSE sur 24 h. Quel est le débit ?`,'m',50,1440,`24 h`),
 S(`<b>Kétoprofène</b> 100 mg IV : poche de 100 mL à passer en 30 min à l'aide d'une pompe à perfusion. Quel est le débit ?`,'m',100,30,`30 min`,`30 min = 0,5 h : ici le temps doit être en heures.`)
 ];
+/* ========== État + SCORM 1.2 ========== */
+const ST={sc:[L1,L2,L3].map(L=>L.map(()=>null)),pos:[0,0,0]};
+const SC={a:null,init(){let w=window,n=0;while(!w.API&&w.parent&&w.parent!=w&&n++<10)w=w.parent;this.a=w.API||(window.opener&&window.opener.API)||null;const a=this.a;if(!a)return;a.LMSInitialize('');
+try{const d=a.LMSGetValue('cmi.suspend_data');if(d){const o=JSON.parse(d);o.s.forEach((t,k)=>[...t].forEach((c,j)=>{if(ST.sc[k]&&j<ST.sc[k].length)ST.sc[k][j]=c=='-'?null:+c}));ST.pos=o.p}}catch(e){}
+if(a.LMSGetValue('cmi.core.lesson_status')=='not attempted')a.LMSSetValue('cmi.core.lesson_status','incomplete');a.LMSSetValue('cmi.core.score.min','0');a.LMSSetValue('cmi.core.score.max','100');a.LMSCommit('')}};
+function save(){const all=ST.sc.flat(),done=all.filter(s=>s!==null).length,ok=all.filter(s=>s===1).length,pc=Math.round(ok/all.length*100);
+document.getElementById('gl').innerHTML=`<span>Progression : ${done} / ${all.length} exercices</span><span>Score : ${pc} %</span>`;const a=SC.a;if(!a)return;
+a.LMSSetValue('cmi.suspend_data',JSON.stringify({s:ST.sc.map(r=>r.map(s=>s===null?'-':s).join('')),p:ST.pos}));
+a.LMSSetValue('cmi.core.score.raw',String(pc));a.LMSSetValue('cmi.core.lesson_status',done==all.length?'completed':'incomplete');a.LMSSetValue('cmi.core.exit',done==all.length?'':'suspend');a.LMSCommit('')}
+let closed=0;const bye=()=>{if(SC.a&&!closed){closed=1;save();SC.a.LMSFinish('')}};addEventListener('beforeunload',bye);addEventListener('pagehide',bye);
 /* ========== Moteur d'exercices ========== */
-function run(el,L){let i=0,sc=L.map(()=>null);
-const draw=()=>{const x=L[i],ok=sc.filter(s=>s===1).length;
-el.innerHTML=`<div class="top"><b>Exercice ${i+1} / ${L.length}</b><span>✔ ${ok} réussi(s) du premier coup</span></div><div class="prog"><i style="width:${(i+1)/L.length*100}%"></i></div><div class="card"><h3>${x.q}</h3><div class="${x.t=='m'?'mt':'qo'}" id="b"></div><div class="fb" id="fb" role="status" aria-live="polite"></div><div class="ah"><button class="sec" id="ai">💡 Aide</button><div class="bub" id="bu" hidden></div></div></div><div class="nv"><button class="sec" id="pv" ${i?'':'disabled'}>← Précédent</button><button id="nx">${i<L.length-1?'Suivant →':'Terminer'}</button></div>`;
+const cs=x=>`<b>📌 Consigne</b><ol>`+(x.t=='q'?`<li>Lisez la question.</li><li>Cliquez sur <b>une seule</b> proposition.</li><li>Lisez le retour affiché juste dessous : si la réponse est fausse, choisissez une autre proposition ou cliquez sur « 💡 Aide ».</li><li>Cliquez sur « Suivant → » pour continuer.</li>`:x.t=='m'?`<li>Cliquez sur un élément de la colonne de <b>gauche</b> : il se surligne.</li><li>Cliquez ensuite sur l'élément correspondant dans la colonne de <b>droite</b>.</li><li>Une paire juste devient verte ; une erreur est expliquée.</li><li>Répétez jusqu'à associer toutes les paires, puis cliquez sur « Suivant → ».</li>`:`<li>Lisez la situation : repérez le volume, la durée et le dispositif.</li><li>Cliquez sur l'<b>unité</b> du débit (gouttes/min ou mL/h).</li><li>Saisissez votre résultat dans la case (virgule acceptée ; arrondi à l'unité pour des gouttes/min, au dixième pour des mL/h).</li><li>Cliquez sur « Valider » (ou touche Entrée), puis lisez la correction.</li>`)+`</ol>`;
+function run(el,L,k){let i=ST.pos[k]||0,sc=ST.sc[k];
+const draw=()=>{ST.pos[k]=i;const x=L[i],ok=sc.filter(s=>s===1).length;
+const set=v=>{if(sc[i]===null){sc[i]=v;save()}};
+el.innerHTML=`<div class="top"><b>Exercice ${i+1} / ${L.length}</b><span>✔ ${ok} réussi(s) du premier coup</span></div><div class="prog"><i style="width:${(i+1)/L.length*100}%"></i></div><div class="card"><div class="cs">${cs(x)}</div><h3>${x.q}</h3><div class="${x.t=='m'?'mt':'qo'}" id="b"></div><div class="fb" id="fb" role="status" aria-live="polite"></div><div class="ah"><button class="sec" id="ai">💡 Aide</button><div class="bub" id="bu" hidden></div></div></div><div class="nv"><button class="sec" id="pv" ${i?'':'disabled'}>← Précédent</button><button id="nx">${i<L.length-1?'Suivant →':'Terminer'}</button></div>`;
 const $=s=>el.querySelector(s),bq=$('#b'),f=$('#fb'),ai=$('#ai'),bu=$('#bu');let hi=0;
 const fb=(g,t)=>{f.className='fb '+(g?'ok':'ko');f.innerHTML=(g?'✅ ':'❌ ')+t;if(!g)ai.classList.add('pl')};
 ai.onclick=()=>{bu.hidden=false;const n=hi%x.h.length;bu.innerHTML=`<b>Indice ${n+1}/${x.h.length} :</b> ${x.h[n]}`;hi++;ai.classList.remove('pl')};
-if(x.t=='q'){let tr=0;sh(x.o).forEach(t=>{const b=document.createElement('button');b.className='opt';b.textContent=t;b.onclick=()=>{if(t==x.o[0]){b.classList.add('g');bq.querySelectorAll('button').forEach(k=>k.disabled=true);fb(1,`<b>Bonne réponse : ${t}.</b> ${x.e}`);if(sc[i]===null)sc[i]=tr?0:1;$('#nx').focus()}else{tr++;b.classList.add('r');b.disabled=true;fb(0,`« ${t} » n'est pas la bonne réponse. ${x.w} Réessaie ou clique sur « Aide ».`)}};bq.append(b)})}
+if(x.t=='q'){let tr=0;sh(x.o).forEach(t=>{const b=document.createElement('button');b.className='opt';b.textContent=t;b.onclick=()=>{if(t==x.o[0]){b.classList.add('g');bq.querySelectorAll('button').forEach(k=>k.disabled=true);fb(1,`<b>Bonne réponse : ${t}.</b> ${x.e}`);set(tr?0:1);$('#nx').focus()}else{tr++;b.classList.add('r');b.disabled=true;fb(0,`« ${t} » n'est pas la bonne réponse. ${x.w} Réessaie ou clique sur « Aide ».`)}};bq.append(b)})}
 else if(x.t=='m'){let s=null,err=0,n=0;const col=a=>{const d=document.createElement('div');a.forEach(t=>{const b=document.createElement('button');b.className='opt';b.textContent=t;d.append(b)});bq.append(d);return d};
 const A=col(sh(x.p.map(p=>p[0]))),B=col(sh(x.p.map(p=>p[1])));
 A.onclick=e=>{const b=e.target.closest('button');if(!b||b.disabled)return;A.querySelectorAll('.sel').forEach(k=>k.classList.remove('sel'));b.classList.add('sel');s=b};
 B.onclick=e=>{const b=e.target.closest('button');if(!b||b.disabled)return;if(!s)return fb(0,`Choisis d'abord un élément dans la colonne de gauche.`);const l=s.textContent,r=b.textContent;
-if(x.p.find(p=>p[0]==l)[1]==r){s.classList.replace('sel','g');b.classList.add('g');s.disabled=b.disabled=true;s=null;n++;fb(1,n==x.p.length?`<b>Toutes les paires sont justes !</b> ${x.e}`:`<b>${l} = ${r}.</b> ${x.e}`);if(n==x.p.length){if(sc[i]===null)sc[i]=err?0:1;$('#nx').focus()}}
+if(x.p.find(p=>p[0]==l)[1]==r){s.classList.replace('sel','g');b.classList.add('g');s.disabled=b.disabled=true;s=null;n++;fb(1,n==x.p.length?`<b>Toutes les paires sont justes !</b> ${x.e}`:`<b>${l} = ${r}.</b> ${x.e}`);if(n==x.p.length){set(err?0:1);$('#nx').focus()}}
 else{err++;s.classList.remove('sel');fb(0,`« ${l} » ne correspond pas à « ${r} ». ${x.w} Essaie une autre association ou clique sur « Aide ».`);s=null}}}
 else{let u=null;bq.innerHTML=`<div class="u"><button class="opt" data-u="g">gouttes / min</button><button class="opt" data-u="m">mL / h</button></div><div class="in"><input id="v" inputmode="decimal" placeholder="Ton résultat" aria-label="Résultat"><button id="go">Valider</button></div>`;
 bq.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{u=b.dataset.u;bq.querySelectorAll('[data-u]').forEach(k=>k.classList.toggle('sel',k==b))});
 const go=()=>{const v=parseFloat($('#v').value.replace(',','.'));if(!u)return fb(0,`Choisis d'abord l'unité du débit (gouttes/min ou mL/h).`);if(isNaN(v))return fb(0,`Saisis ton résultat sous forme de nombre.`);x.n=(x.n||0)+1;
 if(u!=x.d)return fb(0,x.d=='g'?`Unité incorrecte : sans pousse-seringue ni pompe, c'est une tubulure simple, donc un débit en <b>gouttes/min</b>.`:`Unité incorrecte : avec un pousse-seringue électrique ou une pompe, le débit s'exprime en <b>mL/h</b>.`);
-if(Math.abs(v-x.a)<=x.tol){bq.querySelectorAll('button,input').forEach(k=>k.disabled=true);fb(1,`<b>Bravo !</b><br>${x.e}`);sc[i]=x.n==1?1:0;$('#nx').focus()}
+if(Math.abs(v-x.a)<=x.tol){bq.querySelectorAll('button,input').forEach(k=>k.disabled=true);fb(1,`<b>Bravo !</b><br>${x.e}`);set(x.n==1?1:0);$('#nx').focus()}
 else{const t=x.tr.find(t=>Math.abs(v-t[0])<=x.tol);fb(0,`${F(v)} n'est pas le bon résultat. ${t?t[1]:`Vérifie l'unité, le volume et la conversion du temps.`} Corrige ton calcul ou clique sur « Aide ».`)}};
 $('#go').onclick=go;$('#v').onkeydown=e=>{if(e.key=='Enter')go()}}
 $('#pv').onclick=()=>{i--;draw()};
-$('#nx').onclick=()=>{if(i<L.length-1){i++;draw()}else{const ok=sc.filter(s=>s===1).length;el.innerHTML=`<div class="card end"><h3>🎉 Niveau terminé</h3><p>${ok} réponse(s) juste(s) du premier coup sur ${L.length}.</p><p>${ok==L.length?'Excellent, passe au niveau suivant !':'Recommence pour consolider ou passe au niveau suivant.'}</p><button id="rs">Recommencer</button></div>`;$('#rs').onclick=()=>{i=0;sc=L.map(()=>null);draw()}}}};
+$('#nx').onclick=()=>{if(i<L.length-1){i++;save();draw()}else{i=L.length-1;save();const ok=sc.filter(s=>s===1).length;el.innerHTML=`<div class="card end"><h3>🎉 Niveau terminé</h3><p>${ok} réponse(s) juste(s) du premier coup sur ${L.length}.</p><p>${ok==L.length?'Excellent, passe au niveau suivant !':'Recommence pour consolider ou passe au niveau suivant.'}</p><button id="rs">Recommencer</button></div>`;$('#rs').onclick=()=>{i=0;sc.fill(null);save();draw()}}}};
 draw()}
 /* ========== Pages ========== */
+const box=(t,h)=>`<div class="bx ${t}"><span class="ic">${t=='al'?'!':t=='tip'?'💡':'i'}</span><div>${h}</div></div>`;
+const aide=box('tip',`<b>Un doute ?</b> Cliquez sur « 💡 Aide » : un conseil s'affiche dans une bulle, indice après indice.`);
+const PRES=`<div class="card"><h2>Calculs de doses en soins infirmiers : entraînez-vous à votre rythme</h2>
+<p>Le calcul de doses fait partie des compétences que vous devez acquérir au cours de votre formation en soins infirmiers. Il mobilise des connaissances mathématiques, mais également une démarche de raisonnement indispensable à la préparation et à l'administration sécurisée des traitements.</p>
+<p>Cet espace d'entraînement vous propose des exercices progressifs de conversions d'unités, de calculs de doses et de calculs de débits, afin de vous accompagner dans l'acquisition et la consolidation de vos compétences.</p>
+<p>En m'appuyant sur mes 14 années d'expérience en tant que cadre de santé formateur en Institut de Formation en Soins Infirmiers (IFSI), j'ai conçu ces exercices pour vous permettre de développer progressivement votre raisonnement, de comprendre les différentes étapes d'un calcul et de gagner en autonomie.</p>
+<p>Chaque exercice est accompagné d'une correction et d'une explication détaillée de la démarche utilisée. Vous pouvez ainsi identifier vos éventuelles erreurs, comprendre leur origine et ajuster votre méthode de résolution.</p>
+${box('al',`L'objectif n'est pas uniquement de trouver le bon résultat, mais de comprendre comment y parvenir, de vérifier la cohérence de vos calculs et de développer des réflexes de vérification applicables en situation professionnelle.`)}
+<h4>Objectifs pédagogiques</h4>
+${box('info',`<p>À l'issue de vos entraînements, vous serez capable de :</p><ul><li>Réaliser des conversions entre les différentes unités de mesure utilisées dans les calculs de doses en soins infirmiers.</li><li>Résoudre des exercices de calculs de doses et de débits en mobilisant une méthode de raisonnement structurée.</li><li>Analyser les données d'un énoncé pour identifier les informations utiles, choisir les opérations adaptées et vérifier la cohérence du résultat obtenu.</li><li>Identifier et comprendre vos erreurs à partir des corrections détaillées afin d'améliorer progressivement votre raisonnement et votre autonomie.</li></ul>`)}
+<h4>Intention pédagogique</h4>
+${box('info',`<p>Cette démarche pédagogique vise à vous accompagner dans la construction progressive de votre raisonnement en calcul de doses.</p><p>Les exercices sont conçus pour vous permettre de mobiliser vos connaissances, de les appliquer à différentes situations et de comprendre les étapes nécessaires à la résolution d'un problème.</p><p>Les corrections détaillées ne se limitent pas à présenter le résultat attendu : elles explicitent le cheminement à suivre, les opérations à réaliser et les points de vigilance à prendre en compte.</p>`)}
+<h4>Comment utiliser cet espace ?</h4>
+${box('info',`Le parcours comporte 3 niveaux : <b>1 · Conversions</b>, <b>2 · Préparer la perfusion</b>, <b>3 · Situations cliniques</b>. Cliquez sur les onglets en haut de page pour passer de l'un à l'autre.`)}
+${box('al',`Avant chaque exercice, lisez attentivement l'encadré « 📌 Consigne » : il précise où cliquer, comment et dans quel ordre.`)}
+${aide}
+<p style="text-align:center;margin-top:18px"><button id="st">Commencer le niveau 1 →</button></p></div>`;
 const P=[
-['1 · Conversions',L1,`<p><b>Objectif :</b> convertir les masses (g, mg, µg) et les volumes (L, mL, cc) sans erreur de virgule.</p><table><tr><th>Masses</th><th>Volumes</th></tr><tr><td>1 g = 1 000 mg</td><td>1 L = 1 000 mL</td></tr><tr><td>1 mg = 1 000 µg</td><td>1 cc = 1 cm³ = 1 mL</td></tr></table>`],
-['2 · Préparer la perfusion',L2,`<p><b>Objectif :</b> maîtriser les conversions nécessaires au calcul d'un débit.</p><table><tr><td>1 h = 60 min</td><td>h → min : × 60 · min → h : ÷ 60</td></tr><tr><td>1 mL = 20 gouttes</td><td>100 mL = 2 000 gttes · 500 mL = 10 000 gttes · 1 000 mL = 20 000 gttes</td></tr></table>`],
-['3 · Situations cliniques',L3,`<p><b>Formule du débit :</b></p><p class="f">D = Volume ÷ Temps</p><p>Les unités et les conversions dépendent du dispositif :</p><table><tr><th>Dispositif</th><th>Débit</th><th>Calcul</th></tr><tr><td>Tubulure simple (ou dispositif non précisé)</td><td>gouttes/min</td><td>D = (V en mL × 20) ÷ T en min</td></tr><tr><td>Pousse-seringue électrique (50 mL max) ou pompe</td><td>mL/h</td><td>D = V en mL ÷ T en h</td></tr></table><p><b>Repères :</b> paracétamol, kétoprofène, Anafranil, Azantac → poche de 50 ou 100 mL, débit en gouttes/min. Morphine, Isuprel, nicardipine → pousse-seringue électrique, débit en mL/h.</p><p><b>Exemple :</b> 250 mL en 2 h sur tubulure simple. 250 × 20 = 5 000 gouttes ; 2 h = 120 min ; 5 000 ÷ 120 ≈ <b>42 gouttes/min</b>.</p>`]];
-const nav=document.getElementById('nav'),pg=document.getElementById('pg');
-function show(k){nav.querySelectorAll('button').forEach((b,j)=>b.classList.toggle('on',j==k));pg.innerHTML=`<div class="intro">${P[k][2]}</div><div id="ex"></div>`;run(pg.querySelector('#ex'),P[k][1])}
-P.forEach((p,k)=>{const b=document.createElement('button');b.textContent=p[0];b.onclick=()=>show(k);nav.append(b)});show(0);
+['1 · Conversions',L1,box('info',`<b>Rappels</b><table><tr><th>Masses</th><th>Volumes</th></tr><tr><td>1 g = 1 000 mg</td><td>1 L = 1 000 mL</td></tr><tr><td>1 mg = 1 000 µg</td><td>1 cc = 1 cm³ = 1 mL</td></tr></table>`)+box('al',`Vérifiez le sens de la conversion : vers une plus petite unité le nombre augmente (× 1 000), vers une plus grande il diminue (÷ 1 000).`)+aide],
+['2 · Préparer la perfusion',L2,box('info',`<b>Rappels</b><table><tr><td>1 h = 60 min</td><td>h → min : × 60 · min → h : ÷ 60</td></tr><tr><td>1 mL = 20 gouttes</td><td>100 mL = 2 000 gttes · 500 mL = 10 000 gttes · 1 000 mL = 20 000 gttes</td></tr></table>`)+box('al',`1 heure = 60 minutes, et non 100. Le temps n'est pas décimal.`)+aide],
+['3 · Situations cliniques',L3,box('info',`<b>Formule du débit</b><p class="f">D = Volume ÷ Temps</p><table><tr><th>Dispositif</th><th>Débit</th><th>Calcul</th></tr><tr><td>Tubulure simple (ou dispositif non précisé)</td><td>gouttes/min</td><td>D = (V en mL × 20) ÷ T en min</td></tr><tr><td>Pousse-seringue électrique (50 mL max) ou pompe</td><td>mL/h</td><td>D = V en mL ÷ T en h</td></tr></table>`)+box('al',`Sans précision du dispositif, il s'agit d'une tubulure simple : débit en gouttes/min. Pousse-seringue électrique ou pompe : débit en mL/h. Convertissez toujours le temps dans l'unité demandée.`)+box('info',`<b>Repères :</b> paracétamol, kétoprofène, Anafranil, Azantac → poche de 50 ou 100 mL, gouttes/min. Morphine, Isuprel, nicardipine → pousse-seringue électrique, mL/h.<br><b>Exemple :</b> 250 mL en 2 h sur tubulure simple : 250 × 20 = 5 000 gouttes ; 2 h = 120 min ; 5 000 ÷ 120 ≈ <b>42 gouttes/min</b>.`)+aide]];
+const T=['Présentation',...P.map(p=>p[0])],nav=document.getElementById('nav'),pg=document.getElementById('pg');
+function show(j){nav.querySelectorAll('button').forEach((b,n)=>b.classList.toggle('on',n==j));if(!j){pg.innerHTML=PRES;pg.querySelector('#st').onclick=()=>show(1);return}
+pg.innerHTML=`<div class="intro">${P[j-1][2]}</div><div id="ex"></div>`;run(pg.querySelector('#ex'),P[j-1][1],j-1)}
+T.forEach((t,j)=>{const b=document.createElement('button');b.textContent=t;b.onclick=()=>show(j);nav.append(b)});
+SC.init();save();show(0);
 </script></body></html>
