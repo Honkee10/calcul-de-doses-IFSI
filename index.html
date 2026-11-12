@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Calcul de doses – Soins infirmiers</title>
+<style>
+:root{--bg:#eef3f5;--c:#fff;--t:#17262e;--m:#566872;--p:#0a5c6b;--pl:#d9edf1;--ok:#1b7a3a;--okb:#e5f6ea;--ko:#b3261e;--kob:#fdecea;--b:#c9d6dc;--am:#f2b134}
+@media(prefers-color-scheme:dark){:root{--bg:#10191e;--c:#18242b;--t:#e6eff3;--m:#97aab4;--p:#5cc3d3;--pl:#1d3a43;--ok:#74d493;--okb:#173323;--ko:#ff9a92;--kob:#3b1d1b;--b:#33454e;--am:#f2b134}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font:16px/1.55 Georgia,"Times New Roman",serif;padding:10px}
+.w{max-width:760px;margin:auto}h1{font:700 1.3rem system-ui,sans-serif;margin:4px 0 10px;color:var(--p)}h3{margin:.2em 0 .8em;font-size:1.15rem}
+button{font:600 .95rem system-ui,sans-serif;cursor:pointer;border:2px solid var(--p);background:var(--p);color:var(--bg);padding:9px 14px;border-radius:8px}
+button:focus-visible,input:focus-visible{outline:3px solid var(--am);outline-offset:2px}button:disabled{opacity:.55;cursor:default}
+button.sec{background:transparent;color:var(--p)}
+nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}nav button{flex:1;background:var(--c);color:var(--t);border-color:var(--b);min-width:150px}nav button.on{background:var(--p);color:var(--bg);border-color:var(--p)}
+.intro{background:var(--pl);border-left:5px solid var(--p);padding:10px 14px;border-radius:6px;margin-bottom:14px;font-size:.95rem}.intro p{margin:.3em 0}
+.intro table{border-collapse:collapse;width:100%;font-size:.9rem;margin:6px 0}.intro td,.intro th{border:1px solid var(--b);padding:4px 8px;text-align:left}
+.f{font:700 1.05rem system-ui,sans-serif;background:var(--c);display:inline-block;padding:4px 10px;border-radius:6px;margin:4px 0}
+.top{display:flex;justify-content:space-between;font:.9rem system-ui,sans-serif;color:var(--m)}.prog{height:6px;background:var(--b);border-radius:4px;margin:5px 0 12px}.prog i{display:block;height:100%;background:var(--p);border-radius:4px}
+.card{background:var(--c);border:1px solid var(--b);border-radius:10px;padding:16px}
+.qo{display:grid;gap:8px}.mt{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px}.mt>div{display:grid;gap:8px;align-content:start}
+.opt{background:var(--c);color:var(--t);border:2px solid var(--b);text-align:left}.opt.sel{border-color:var(--am);background:var(--pl)}.opt.g{background:var(--okb);border-color:var(--ok);color:var(--ok)}.opt.r{background:var(--kob);border-color:var(--ko);color:var(--ko)}
+.fb{margin-top:12px;padding:0;font:.95rem/1.5 system-ui,sans-serif}.fb.ok,.fb.ko{padding:10px 12px;border-radius:8px}.fb.ok{background:var(--okb);color:var(--ok)}.fb.ko{background:var(--kob);color:var(--ko)}
+.u,.in{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}input{font:1.1rem system-ui,sans-serif;padding:8px;border:2px solid var(--b);border-radius:8px;background:var(--bg);color:var(--t);width:180px}
+.ah{margin-top:14px;position:relative}.bub{position:relative;margin-top:12px;background:var(--am);color:#2a2000;padding:10px 14px;border-radius:12px;font:.95rem system-ui,sans-serif}.bub:before{content:"";position:absolute;top:-8px;left:26px;border:8px solid transparent;border-top:0;border-bottom-color:var(--am)}
+.pl{animation:pl 1s 2}@keyframes pl{50%{box-shadow:0 0 0 6px var(--am)}}@media(prefers-reduced-motion:reduce){.pl{animation:none}}
+.nv{display:flex;justify-content:space-between;margin-top:12px}.end{text-align:center;padding:24px}
+@media(max-width:520px){.mt{gap:8px}}
+</style></head><body><div class="w"><h1>💉 Calcul de doses · Soins infirmiers</h1><nav id="nav"></nav><main id="pg"></main></div>
+<script>
+const F=n=>(+(+n).toFixed(2)).toLocaleString('fr-FR'),sh=a=>[...a].sort(()=>Math.random()-.5);
+const Q=(q,o,e,h,w)=>({t:'q',q,o,e,h,w}),M=(q,p,h,w,e)=>({t:'m',q,p,h,w,e});
+/* ========== NIVEAU 1 : conversions ========== */
+const w1=`Rappel : en passant de g → mg → µg on multiplie par 1 000 à chaque palier ; dans l'autre sens on divise par 1 000 (la virgule se décale de 3 rangs).`;
+const L1=[
+Q(`1 g correspond à combien de mg ?`,[`1 000 mg`,`100 mg`,`10 mg`,`10 000 mg`],`1 g = 1 000 mg. « milli » signifie un millième : il faut 1 000 mg pour faire 1 g.`,[`« milli » = un millième.`,`Du gramme vers le mg, tu vas vers une plus petite unité : le nombre grandit (× 1 000).`],w1),
+Q(`500 mg = ? g`,[`0,5 g`,`5 g`,`0,05 g`,`50 g`],`500 ÷ 1 000 = 0,5 g, soit un demi-gramme.`,[`Du mg vers le g, tu vas vers une plus grande unité : le nombre diminue.`,`Divise par 1 000 : décale la virgule de 3 rangs vers la gauche.`],w1),
+Q(`2 mg = ? µg`,[`2 000 µg`,`200 µg`,`20 µg`,`0,002 µg`],`2 × 1 000 = 2 000 µg, car 1 mg = 1 000 µg.`,[`Le µg est 1 000 fois plus petit que le mg.`,`Il faut donc 1 000 µg pour 1 mg : multiplie.`],w1),
+Q(`250 µg = ? mg`,[`0,25 mg`,`2,5 mg`,`250 mg`,`0,025 mg`],`250 ÷ 1 000 = 0,25 mg.`,[`µg → mg : plus grande unité, le nombre diminue.`,`Décale la virgule de 3 rangs vers la gauche : 250 → 0,250.`],w1),
+Q(`1,5 L = ? mL`,[`1 500 mL`,`150 mL`,`15 mL`,`15 000 mL`],`1,5 × 1 000 = 1 500 mL, car 1 L = 1 000 mL.`,[`1 L = 1 000 mL.`,`Multiplie 1,5 par 1 000 (virgule de 3 rangs vers la droite).`],`Rappel : 1 L = 1 000 mL. Du L vers le mL on multiplie par 1 000, du mL vers le L on divise.`),
+Q(`750 mL = ? L`,[`0,75 L`,`7,5 L`,`75 L`,`0,075 L`],`750 ÷ 1 000 = 0,75 L (trois quarts de litre).`,[`mL → L : on va vers une plus grande unité, le nombre diminue.`,`Divise par 1 000 : 750 → 0,750.`],`Rappel : 1 L = 1 000 mL. Du mL vers le L on divise par 1 000.`),
+Q(`1 cc (cm³) correspond à…`,[`1 mL`,`10 mL`,`0,1 mL`,`1 L`],`1 cc = 1 cm³ = 1 mL. Les seringues graduées en cc sont graduées en mL.`,[`cc veut dire centimètre cube (cm³).`,`1 cm³ de liquide = 1 mL.`],`1 cc = 1 cm³ = 1 mL. Ne le confonds pas avec le litre (1 000 mL).`),
+Q(`0,05 g = ? mg`,[`50 mg`,`5 mg`,`500 mg`,`0,5 mg`],`0,05 × 1 000 = 50 mg.`,[`g → mg : multiplie par 1 000.`,`Décale la virgule de 3 rangs vers la droite : 0,050 → 50.`],w1),
+M(`Associe chaque masse à sa conversion.`,[[`1 g`,`1 000 mg`],[`1 mg`,`1 000 µg`],[`0,5 g`,`500 mg`],[`0,2 mg`,`200 µg`]],[`Pars de la règle : 1 g = 1 000 mg et 1 mg = 1 000 µg.`,`Pour 0,5 g et 0,2 mg, multiplie par 1 000.`],w1,`Un palier g → mg ou mg → µg = × 1 000.`),
+M(`Associe chaque volume à sa conversion.`,[[`1 L`,`1 000 mL`],[`1 cc`,`1 mL`],[`2,5 L`,`2 500 mL`],[`250 mL`,`0,25 L`]],[`1 L = 1 000 mL et 1 cc = 1 mL.`,`L → mL : × 1 000 ; mL → L : ÷ 1 000.`],`Rappel : 1 L = 1 000 mL ; 1 cc = 1 mL.`,`L → mL on multiplie par 1 000, mL → L on divise par 1 000.`)
+];
+/* ========== NIVEAU 2 : heures, minutes, gouttes ========== */
+const L2=[],wh=`Attention : 1 heure = 60 minutes (et non 100). Le système horaire n'est pas décimal.`,wg=`Rappel : 1 mL = 20 gouttes. mL → gouttes : × 20 ; gouttes → mL : ÷ 20.`;
+[1,3,5,8,12,18,24].forEach(h=>L2.push(Q(`${h} h = combien de minutes ?`,[h*60,h*100,h*30,h*6].map(n=>F(n)+` min`),`${h} × 60 = ${F(h*60)} min. Méthode : nombre d'heures × 60.`,[`1 heure = 60 minutes.`,`Multiplie le nombre d'heures par 60.`],wh)));
+[120,300,720,1440].forEach(m=>L2.push(Q(`${F(m)} min = combien d'heures ?`,[m/60,m/100,m/30,m/10].map(n=>F(n)+` h`),`${F(m)} ÷ 60 = ${F(m/60)} h. Méthode : nombre de minutes ÷ 60.`,[`60 minutes = 1 heure.`,`Divise le nombre de minutes par 60 (pas par 100).`],`Attention : on divise par 60, pas par 100 ni par 10.`)));
+[100,500,1000].forEach(v=>L2.push(Q(`${F(v)} mL = combien de gouttes ?`,[v*20,v*2,v*10,v/20].map(n=>F(n)+` gouttes`),`${F(v)} × 20 = ${F(v*20)} gouttes, car 1 mL = 20 gouttes.`,[`1 mL = 20 gouttes.`,`Multiplie le volume en mL par 20.`],wg)));
+[2000,10000,20000].forEach(g=>L2.push(Q(`${F(g)} gouttes = combien de mL ?`,[g/20,g/2,g/200,g*20].map(n=>F(n)+` mL`),`${F(g)} ÷ 20 = ${F(g/20)} mL, car 20 gouttes = 1 mL.`,[`20 gouttes = 1 mL.`,`Divise le nombre de gouttes par 20.`],wg)));
+L2.push(M(`Associe chaque durée en heures à son équivalent en minutes.`,[[`2 h`,`120 min`],[`6 h`,`360 min`],[`10 h`,`600 min`],[`15 h`,`900 min`],[`20 h`,`1 200 min`],[`24 h`,`1 440 min`]].map(p=>p.map(s=>s.replace(' 200','\u202f200').replace('1 440','1\u202f440'))),[`Heures × 60 = minutes.`,`Exemple : 2 h = 2 × 60 = 120 min. Tu peux t'appuyer sur 6 h = 360 min.`],wh,`Heures × 60 = minutes.`),
+M(`Associe chaque volume à son nombre de gouttes.`,[[`50 mL`,`1 000 gouttes`],[`100 mL`,`2 000 gouttes`],[`500 mL`,`10 000 gouttes`],[`1 000 mL`,`20 000 gouttes`]],[`1 mL = 20 gouttes.`,`100 mL = 2 000 gouttes. Les autres volumes se déduisent par proportionnalité.`],wg,`Volume en mL × 20 = nombre de gouttes.`),
+M(`Associe chaque durée à son équivalent (attention au sens de la conversion).`,[[`4 h`,`240 min`],[`180 min`,`3 h`],[`360 min`,`6 h`],[`9 h`,`540 min`]],[`Heures → minutes : × 60 ; minutes → heures : ÷ 60.`,`Repère le sens : si l'unité de départ est « h », multiplie.`],wh,`h → min : × 60 ; min → h : ÷ 60.`));
+/* ========== NIVEAU 3 : situations cliniques ========== */
+const S=(q,d,V,min,tt,h2)=>{const g=d=='g',a=g?V*20/min:V/(min/60),r=g?Math.round(a):F(a);
+return{t:'c',q,d,a,tol:g?.6:.06,h:[g?`Quel dispositif ? Aucun pousse-seringue ni pompe : c'est une tubulure simple, donc un débit en gouttes/min.`:`Pousse-seringue électrique ou pompe : le débit s'exprime en mL/h.`,...(h2?[h2]:[]),g?`Convertis les mL en gouttes (× 20), exprime le temps en minutes, puis divise : D = gouttes ÷ minutes.`:`Exprime le temps en heures (minutes ÷ 60), puis divise : D = V ÷ T.`],
+e:g?`Tubulure simple → gouttes/min.<br>Volume : ${V} mL × 20 = ${F(V*20)} gouttes. Temps : ${tt} = ${min} min.<br>D = ${F(V*20)} ÷ ${min} = ${F(a)} → <b>${r} gouttes/min</b> (arrondi à l'unité).`:`Pousse-seringue / pompe → mL/h.<br>Temps : ${tt} = ${F(min/60)} h.<br>D = ${V} ÷ ${F(min/60)} = <b>${F(a)} mL/h</b>.`,
+tr:g?[[V/min,`Tu as oublié de convertir les mL en gouttes (× 20).`],[V*20/(min/60),`Le temps doit être exprimé en minutes pour un débit en gouttes/min.`]]:[[V/min,`Pour un débit en mL/h, le temps doit être en heures : convertis tes minutes (÷ 60).`],[V*20/min,`Un pousse-seringue ou une pompe donne un débit en mL/h : pas de conversion en gouttes.`]]}};
+const L3=[
+S(`<b>Paracétamol</b> 1 g IV : poche de 100 mL à passer en 15 min. Quel est le débit ?`,'g',100,15,`15 min`),
+S(`<b>Kétoprofène</b> 100 mg IV, dilué dans une poche de 100 mL, à perfuser en 30 min. Quel est le débit ?`,'g',100,30,`30 min`),
+S(`<b>Anafranil</b> 25 mg IV dans une poche de 100 mL, à passer en 1 h 30 sur tubulure simple. Quel est le débit ?`,'g',100,90,`1 h 30`,`1 h 30 = 60 + 30 = 90 minutes.`),
+S(`<b>Azantac</b> 50 mg IV dans une poche de 50 mL, à passer en 20 min. Quel est le débit ?`,'g',50,20,`20 min`),
+S(`<b>Morphine</b> IV : seringue de 50 mL à administrer en pousse-seringue électrique (PSE) en 10 h. Quel est le débit ?`,'m',50,600,`10 h`),
+S(`<b>Isuprel</b> IV : seringue de 50 mL au PSE, à passer en 8 h. Quel est le débit ?`,'m',50,480,`8 h`),
+S(`<b>Nicardipine</b> IV : seringue de 50 mL au PSE sur 24 h. Quel est le débit ?`,'m',50,1440,`24 h`),
+S(`<b>Kétoprofène</b> 100 mg IV : poche de 100 mL à passer en 30 min à l'aide d'une pompe à perfusion. Quel est le débit ?`,'m',100,30,`30 min`,`30 min = 0,5 h : ici le temps doit être en heures.`)
+];
+/* ========== Moteur d'exercices ========== */
+function run(el,L){let i=0,sc=L.map(()=>null);
+const draw=()=>{const x=L[i],ok=sc.filter(s=>s===1).length;
+el.innerHTML=`<div class="top"><b>Exercice ${i+1} / ${L.length}</b><span>✔ ${ok} réussi(s) du premier coup</span></div><div class="prog"><i style="width:${(i+1)/L.length*100}%"></i></div><div class="card"><h3>${x.q}</h3><div class="${x.t=='m'?'mt':'qo'}" id="b"></div><div class="fb" id="fb" role="status" aria-live="polite"></div><div class="ah"><button class="sec" id="ai">💡 Aide</button><div class="bub" id="bu" hidden></div></div></div><div class="nv"><button class="sec" id="pv" ${i?'':'disabled'}>← Précédent</button><button id="nx">${i<L.length-1?'Suivant →':'Terminer'}</button></div>`;
+const $=s=>el.querySelector(s),bq=$('#b'),f=$('#fb'),ai=$('#ai'),bu=$('#bu');let hi=0;
+const fb=(g,t)=>{f.className='fb '+(g?'ok':'ko');f.innerHTML=(g?'✅ ':'❌ ')+t;if(!g)ai.classList.add('pl')};
+ai.onclick=()=>{bu.hidden=false;const n=hi%x.h.length;bu.innerHTML=`<b>Indice ${n+1}/${x.h.length} :</b> ${x.h[n]}`;hi++;ai.classList.remove('pl')};
+if(x.t=='q'){let tr=0;sh(x.o).forEach(t=>{const b=document.createElement('button');b.className='opt';b.textContent=t;b.onclick=()=>{if(t==x.o[0]){b.classList.add('g');bq.querySelectorAll('button').forEach(k=>k.disabled=true);fb(1,`<b>Bonne réponse : ${t}.</b> ${x.e}`);if(sc[i]===null)sc[i]=tr?0:1;$('#nx').focus()}else{tr++;b.classList.add('r');b.disabled=true;fb(0,`« ${t} » n'est pas la bonne réponse. ${x.w} Réessaie ou clique sur « Aide ».`)}};bq.append(b)})}
+else if(x.t=='m'){let s=null,err=0,n=0;const col=a=>{const d=document.createElement('div');a.forEach(t=>{const b=document.createElement('button');b.className='opt';b.textContent=t;d.append(b)});bq.append(d);return d};
+const A=col(sh(x.p.map(p=>p[0]))),B=col(sh(x.p.map(p=>p[1])));
+A.onclick=e=>{const b=e.target.closest('button');if(!b||b.disabled)return;A.querySelectorAll('.sel').forEach(k=>k.classList.remove('sel'));b.classList.add('sel');s=b};
+B.onclick=e=>{const b=e.target.closest('button');if(!b||b.disabled)return;if(!s)return fb(0,`Choisis d'abord un élément dans la colonne de gauche.`);const l=s.textContent,r=b.textContent;
+if(x.p.find(p=>p[0]==l)[1]==r){s.classList.replace('sel','g');b.classList.add('g');s.disabled=b.disabled=true;s=null;n++;fb(1,n==x.p.length?`<b>Toutes les paires sont justes !</b> ${x.e}`:`<b>${l} = ${r}.</b> ${x.e}`);if(n==x.p.length){if(sc[i]===null)sc[i]=err?0:1;$('#nx').focus()}}
+else{err++;s.classList.remove('sel');fb(0,`« ${l} » ne correspond pas à « ${r} ». ${x.w} Essaie une autre association ou clique sur « Aide ».`);s=null}}}
+else{let u=null;bq.innerHTML=`<div class="u"><button class="opt" data-u="g">gouttes / min</button><button class="opt" data-u="m">mL / h</button></div><div class="in"><input id="v" inputmode="decimal" placeholder="Ton résultat" aria-label="Résultat"><button id="go">Valider</button></div>`;
+bq.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{u=b.dataset.u;bq.querySelectorAll('[data-u]').forEach(k=>k.classList.toggle('sel',k==b))});
+const go=()=>{const v=parseFloat($('#v').value.replace(',','.'));if(!u)return fb(0,`Choisis d'abord l'unité du débit (gouttes/min ou mL/h).`);if(isNaN(v))return fb(0,`Saisis ton résultat sous forme de nombre.`);x.n=(x.n||0)+1;
+if(u!=x.d)return fb(0,x.d=='g'?`Unité incorrecte : sans pousse-seringue ni pompe, c'est une tubulure simple, donc un débit en <b>gouttes/min</b>.`:`Unité incorrecte : avec un pousse-seringue électrique ou une pompe, le débit s'exprime en <b>mL/h</b>.`);
+if(Math.abs(v-x.a)<=x.tol){bq.querySelectorAll('button,input').forEach(k=>k.disabled=true);fb(1,`<b>Bravo !</b><br>${x.e}`);sc[i]=x.n==1?1:0;$('#nx').focus()}
+else{const t=x.tr.find(t=>Math.abs(v-t[0])<=x.tol);fb(0,`${F(v)} n'est pas le bon résultat. ${t?t[1]:`Vérifie l'unité, le volume et la conversion du temps.`} Corrige ton calcul ou clique sur « Aide ».`)}};
+$('#go').onclick=go;$('#v').onkeydown=e=>{if(e.key=='Enter')go()}}
+$('#pv').onclick=()=>{i--;draw()};
+$('#nx').onclick=()=>{if(i<L.length-1){i++;draw()}else{const ok=sc.filter(s=>s===1).length;el.innerHTML=`<div class="card end"><h3>🎉 Niveau terminé</h3><p>${ok} réponse(s) juste(s) du premier coup sur ${L.length}.</p><p>${ok==L.length?'Excellent, passe au niveau suivant !':'Recommence pour consolider ou passe au niveau suivant.'}</p><button id="rs">Recommencer</button></div>`;$('#rs').onclick=()=>{i=0;sc=L.map(()=>null);draw()}}}};
+draw()}
+/* ========== Pages ========== */
+const P=[
+['1 · Conversions',L1,`<p><b>Objectif :</b> convertir les masses (g, mg, µg) et les volumes (L, mL, cc) sans erreur de virgule.</p><table><tr><th>Masses</th><th>Volumes</th></tr><tr><td>1 g = 1 000 mg</td><td>1 L = 1 000 mL</td></tr><tr><td>1 mg = 1 000 µg</td><td>1 cc = 1 cm³ = 1 mL</td></tr></table>`],
+['2 · Préparer la perfusion',L2,`<p><b>Objectif :</b> maîtriser les conversions nécessaires au calcul d'un débit.</p><table><tr><td>1 h = 60 min</td><td>h → min : × 60 · min → h : ÷ 60</td></tr><tr><td>1 mL = 20 gouttes</td><td>100 mL = 2 000 gttes · 500 mL = 10 000 gttes · 1 000 mL = 20 000 gttes</td></tr></table>`],
+['3 · Situations cliniques',L3,`<p><b>Formule du débit :</b></p><p class="f">D = Volume ÷ Temps</p><p>Les unités et les conversions dépendent du dispositif :</p><table><tr><th>Dispositif</th><th>Débit</th><th>Calcul</th></tr><tr><td>Tubulure simple (ou dispositif non précisé)</td><td>gouttes/min</td><td>D = (V en mL × 20) ÷ T en min</td></tr><tr><td>Pousse-seringue électrique (50 mL max) ou pompe</td><td>mL/h</td><td>D = V en mL ÷ T en h</td></tr></table><p><b>Repères :</b> paracétamol, kétoprofène, Anafranil, Azantac → poche de 50 ou 100 mL, débit en gouttes/min. Morphine, Isuprel, nicardipine → pousse-seringue électrique, débit en mL/h.</p><p><b>Exemple :</b> 250 mL en 2 h sur tubulure simple. 250 × 20 = 5 000 gouttes ; 2 h = 120 min ; 5 000 ÷ 120 ≈ <b>42 gouttes/min</b>.</p>`]];
+const nav=document.getElementById('nav'),pg=document.getElementById('pg');
+function show(k){nav.querySelectorAll('button').forEach((b,j)=>b.classList.toggle('on',j==k));pg.innerHTML=`<div class="intro">${P[k][2]}</div><div id="ex"></div>`;run(pg.querySelector('#ex'),P[k][1])}
+P.forEach((p,k)=>{const b=document.createElement('button');b.textContent=p[0];b.onclick=()=>show(k);nav.append(b)});show(0);
+</script></body></html>
